@@ -108,26 +108,35 @@ export default function AuditReport({ report, email }: AuditReportProps) {
 
       {/* Header */}
       <div className="text-center pt-6">
-        <h1 className="text-3xl font-bold text-white mb-3">Your RevOps Audit Report</h1>
-        <p className="text-gray-400 italic text-base max-w-xl mx-auto">
-          &ldquo;{report.summary_headline}&rdquo;
-        </p>
+        <h1 className="text-3xl font-bold text-white mb-1">Your RevOps Audit Report</h1>
       </div>
 
-      {/* Overall Score + ARR Impact */}
+      {/* Overall Score */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6">
         <ScoreRing score={report.overall_score} size={128} />
         <div className="flex-1">
           <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-2">Overall Score</p>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-2">
             <span className={`text-4xl font-bold ${getScoreColor(report.overall_score)}`}>
               {report.overall_score}
             </span>
             <LabelBadge label={report.overall_label} />
           </div>
-          <div className="flex items-start gap-2 bg-orange-950 border border-orange-800 rounded-xl px-4 py-3">
-            <span className="text-orange-400 text-xs font-bold uppercase tracking-wider whitespace-nowrap mt-0.5">ARR at Risk</span>
-            <p className="text-orange-200 text-sm leading-relaxed">{report.overall_arr_impact ?? '—'}</p>
+          <p className="text-gray-400 text-sm leading-relaxed">{report.summary_headline}</p>
+        </div>
+      </div>
+
+      {/* ARR Impact — standalone callout */}
+      <div className="rounded-2xl p-px bg-gradient-to-r from-orange-600 via-orange-400 to-yellow-400">
+        <div className="bg-gray-950 rounded-2xl px-8 py-6 flex flex-col sm:flex-row items-center gap-5">
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30">
+            <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <p className="text-xs font-bold uppercase tracking-widest text-orange-400 mb-1">Estimated ARR at Risk</p>
+            <p className="text-white text-lg font-semibold leading-snug">{report.overall_arr_impact ?? '—'}</p>
           </div>
         </div>
       </div>
