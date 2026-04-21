@@ -125,12 +125,10 @@ export default function AuditReport({ report, email }: AuditReportProps) {
             </span>
             <LabelBadge label={report.overall_label} />
           </div>
-          {report.overall_arr_impact && (
-            <div className="flex items-start gap-2 bg-orange-950 border border-orange-800 rounded-xl px-4 py-3">
-              <span className="text-orange-400 text-xs font-bold uppercase tracking-wider whitespace-nowrap mt-0.5">ARR at Risk</span>
-              <p className="text-orange-200 text-sm leading-relaxed">{report.overall_arr_impact}</p>
-            </div>
-          )}
+          <div className="flex items-start gap-2 bg-orange-950 border border-orange-800 rounded-xl px-4 py-3">
+            <span className="text-orange-400 text-xs font-bold uppercase tracking-wider whitespace-nowrap mt-0.5">ARR at Risk</span>
+            <p className="text-orange-200 text-sm leading-relaxed">{report.overall_arr_impact ?? '—'}</p>
+          </div>
         </div>
       </div>
 
@@ -157,22 +155,6 @@ export default function AuditReport({ report, email }: AuditReportProps) {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* CTA — visible before the blur wall starts */}
-      <div className="bg-brand-950 border border-brand-800 rounded-2xl p-8 text-center">
-        <h2 className="text-xl font-bold text-white mb-2">Want these fixed in 30 days?</h2>
-        <p className="text-brand-300 text-sm mb-6 max-w-md mx-auto">
-          Book a free 30-minute RevOps review with Milad. We&apos;ll walk through your full findings, all 5 categories, and your top fixes — no pitch, just specifics.
-        </p>
-        <a
-          href={calendlyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block px-8 py-3.5 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
-        >
-          Book a Free 30-Min Review →
-        </a>
       </div>
 
       {/* Category Detail Cards */}
