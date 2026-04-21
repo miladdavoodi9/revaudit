@@ -12,7 +12,13 @@ Built by [3MD Ventures](https://www.3mdventures.com). A lead generation and qual
 
 ![Landing Page](public/screenshots/landing.png)
 
-![Audit Form](public/screenshots/audit.png)
+![Audit Form — Question 1](public/screenshots/audit.png)
+
+![Audit Form — Question 10](public/screenshots/q10.png)
+
+![Stack & ARR Step](public/screenshots/stack.png)
+
+![Audit Report](public/screenshots/report.png)
 
 ---
 
