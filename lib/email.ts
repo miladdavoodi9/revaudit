@@ -110,7 +110,7 @@ const CATEGORY_NAMES: Record<string, string> = {
 export async function sendInternalSummary(
   email: string,
   name: string,
-  answers: AuditAnswers,
+  answers: AuditAnswers | undefined,
   report: AuditReport
 ): Promise<void> {
   const submittedAt = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'medium', timeStyle: 'short' });
@@ -177,19 +177,19 @@ export async function sendInternalSummary(
       </tr>
       <tr>
         <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">CRM</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.crm}</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers?.crm ?? '—'}</td>
       </tr>
       <tr>
         <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">Company Size</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.company_size} employees</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers?.company_size ? answers.company_size + ' employees' : '—'}</td>
       </tr>
       <tr>
         <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">Industry</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.industry || '—'}</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers?.industry || '—'}</td>
       </tr>
       <tr>
         <td style="font-size:13px;color:#9ca3af;">ARR</td>
-        <td style="font-size:13px;font-weight:600;color:#374151;">${answers.arr || 'Not provided'}</td>
+        <td style="font-size:13px;font-weight:600;color:#374151;">${answers?.arr || 'Not provided'}</td>
       </tr>
     </table>
   </td></tr>
@@ -247,7 +247,7 @@ export async function sendInternalSummary(
   await getTransport().sendMail({
     from: `Milad at 3MD Ventures <${GMAIL_USER}>`,
     to: INTERNAL,
-    subject: `[New Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label} · ${answers.crm} · ${answers.company_size}`,
+    subject: `[New Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label}${answers?.crm ? ' · ' + answers.crm : ''}${answers?.company_size ? ' · ' + answers.company_size : ''}`,
     html,
   });
 

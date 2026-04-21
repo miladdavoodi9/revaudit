@@ -2,18 +2,21 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import AuditEntry from '@/components/AuditEntry';
 import AuditForm from '@/components/AuditForm';
+import SchemaUpload from '@/components/SchemaUpload';
 import EmailCapture from '@/components/EmailCapture';
 import AuditReport from '@/components/AuditReport';
 import { AuditAnswers, AuditReport as AuditReportType } from '@/types/audit';
 
-type Stage = 'form' | 'capture' | 'loading' | 'report' | 'error';
+type Stage = 'entry' | 'form' | 'upload' | 'capture' | 'loading' | 'report' | 'error';
 
 export default function AuditPage() {
-  const [stage, setStage] = useState<Stage>('form');
-  const [answers, setAnswers] = useState<AuditAnswers | null>(null);
-  const [email, setEmail] = useState('');
-  const [report, setReport] = useState<AuditReportType | null>(null);
+  const [stage, setStage]       = useState<Stage>('entry');
+  const [answers, setAnswers]   = useState<AuditAnswers | null>(null);
+  const [schema, setSchema]     = useState<{ text: string; crm: string; company_size: string; industry: string; arr: string } | null>(null);
+  const [email, setEmail]       = useState('');
+  const [report, setReport]     = useState<AuditReportType | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   function handleFormComplete(a: AuditAnswers) {
@@ -21,16 +24,34 @@ export default function AuditPage() {
     setStage('capture');
   }
 
+  function handleSchemaComplete(text: string, _filename: string, crm: string, company_size: string, industry: string, arr: string) {
+    setSchema({ text, crm, company_size, industry, arr });
+    setStage('capture');
+  }
+
   async function handleEmailCapture(capturedEmail: string, name: string) {
-    if (!answers) return;
     setEmail(capturedEmail);
     setStage('loading');
 
     try {
+      const body = answers
+        ? { answers, email: capturedEmail, name }
+        : {
+            schema: schema!.text,
+            schemaContext: {
+              crm: schema!.crm,
+              company_size: schema!.company_size,
+              industry: schema!.industry,
+              arr: schema!.arr,
+            },
+            email: capturedEmail,
+            name,
+          };
+
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers, email: capturedEmail, name }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -55,8 +76,22 @@ export default function AuditPage() {
           <Image src="/3md-ventures.svg" alt="3MD Ventures" width={120} height={52} priority />
         </div>
 
+        {stage === 'entry' && (
+          <AuditEntry
+            onQuiz={() => setStage('form')}
+            onUpload={() => setStage('upload')}
+          />
+        )}
+
         {stage === 'form' && (
           <AuditForm onComplete={handleFormComplete} />
+        )}
+
+        {stage === 'upload' && (
+          <SchemaUpload
+            onComplete={handleSchemaComplete}
+            onBack={() => setStage('entry')}
+          />
         )}
 
         {stage === 'capture' && (
@@ -90,12 +125,7 @@ export default function AuditPage() {
               <p className="text-white font-semibold text-lg mb-2">Something went wrong</p>
               <p className="text-gray-500 text-sm mb-6 max-w-sm">{errorMsg}</p>
               <button
-                onClick={() => {
-                  setStage('form');
-                  setAnswers(null);
-                  setReport(null);
-                  setErrorMsg('');
-                }}
+                onClick={() => { setStage('entry'); setAnswers(null); setSchema(null); setReport(null); setErrorMsg(''); }}
                 className="px-6 py-3 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-sm"
               >
                 Start Over

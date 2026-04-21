@@ -4,7 +4,7 @@ import { AuditAnswers, AuditReport } from '@/types/audit';
 export interface AuditLead {
   email: string;
   name: string;
-  answers: AuditAnswers;
+  answers?: AuditAnswers;
   report: AuditReport;
 }
 
@@ -75,11 +75,11 @@ export async function saveLead(lead: AuditLead): Promise<void> {
     lead.report.overall_score,
     lead.report.overall_label,
     lead.report.summary_headline,
-    lead.answers.crm,
-    lead.answers.company_size,
-    lead.answers.industry ?? '',
-    lead.answers.arr ?? '',
-    JSON.stringify(lead.answers),
+    lead.answers?.crm ?? '',
+    lead.answers?.company_size ?? '',
+    lead.answers?.industry ?? '',
+    lead.answers?.arr ?? '',
+    lead.answers ? JSON.stringify(lead.answers) : '',
     JSON.stringify(lead.report),
   ];
 

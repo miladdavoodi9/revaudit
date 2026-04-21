@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateAudit } from '@/lib/claude';
+import { generateAudit, generateAuditFromSchema } from '@/lib/claude';
 import { saveLead } from '@/lib/drive';
 import { sendThankYou, sendInternalSummary } from '@/lib/email';
 import { AuditAnswers } from '@/types/audit';
@@ -7,17 +7,24 @@ import { AuditAnswers } from '@/types/audit';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { answers, email, name } = body as {
-      answers: AuditAnswers;
+    const { answers, schema, schemaContext, email, name } = body as {
+      answers?: AuditAnswers;
+      schema?: string;
+      schemaContext?: { crm: string; company_size: string; industry?: string; arr?: string };
       email: string;
       name: string;
     };
 
-    if (!answers || !email) {
+    if (!email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+    if (!answers && !schema) {
+      return NextResponse.json({ error: 'Provide either answers or a schema' }, { status: 400 });
+    }
 
-    const report = await generateAudit(answers);
+    const report = schema && schemaContext
+      ? await generateAuditFromSchema(schema, schemaContext)
+      : await generateAudit(answers!);
 
     // Non-blocking side-effects — log errors but don't fail the response
     saveLead({ email, name: name ?? '', answers, report }).catch((err: unknown) => {

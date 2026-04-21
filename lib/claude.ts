@@ -186,3 +186,104 @@ Generate the full audit report as JSON using the exact scores and labels already
 
   return JSON.parse(raw.slice(jsonStart, jsonEnd + 1)) as AuditReport;
 }
+
+export async function generateAuditFromSchema(
+  schemaText: string,
+  context: { crm: string; company_size: string; industry?: string; arr?: string }
+): Promise<AuditReport> {
+  const arrContext = context.arr
+    ? `Their current ARR is ${context.arr}. Use this to calculate specific dollar estimates for every arr_impact field.`
+    : `No ARR provided. Use their company size (${context.company_size} employees) as a proxy for plausible dollar ranges — clearly framed as estimates.`;
+
+  const systemPrompt = `You are a senior RevOps consultant analyzing a CRM field schema export. Your job is to infer the quality of this company's revenue operations setup from their field structure alone — then produce a scored audit report.
+
+Evaluate the schema across these 5 categories. For each, produce a score from 0–100 and a label:
+- 80–100 = Strong
+- 65–79 = Good
+- 45–64 = Needs Work
+- 25–44 = High Risk
+- 0–24 = Critical
+
+Categories and what to look for:
+
+1. Pipeline Stage Design (score: 0–100)
+   - Are stages named after buyer actions (e.g. "Demo Scheduled") or internal steps (e.g. "Stage 3")?
+   - Is there a loss reason field? Is it a required picklist?
+   - How many stages exist?
+
+2. Lead Source Attribution (score: 0–100)
+   - Is there a Lead Source field? Is it a required picklist or free text?
+   - Is there evidence of UTM/campaign tracking fields?
+   - Can source be traced to closed-won revenue?
+
+3. Data Completeness (score: 0–100)
+   - Are key fields (close date, deal value, owner, stage) marked required?
+   - Are there validation or dependency rules visible?
+   - Are there signs of stale or optional-only fields on critical objects?
+
+4. Reporting Architecture (score: 0–100)
+   - Are there fields that enable QoQ or historical comparison (created date, close date, fiscal period)?
+   - Is there a forecast category field?
+   - Are custom reporting fields present?
+
+5. Revenue Leakage (score: 0–100)
+   - Is renewal/expansion tracked separately (separate pipeline, record type, or object)?
+   - Are discount fields present at the deal level?
+   - Are churn reason fields present?
+
+${arrContext}
+
+For each category provide:
+- 3 findings: each exactly 1 sentence — sharp, specific, grounded in what you see (or don't see) in the schema.
+- arr_impact: exactly 1 sentence with a specific dollar or % number.
+
+For top_3_fixes: pick the 3 highest-leverage improvements. Each needs a concrete title (not "Improve X" — say what to do), a 1-sentence description with direct revenue outcome, and effort/impact ratings.
+
+Respond with ONLY valid JSON. No markdown, no explanation, no code blocks:
+
+{
+  "overall_score": <average of 5 category scores>,
+  "overall_label": "<label>",
+  "summary_headline": "<one punchy sentence — the single biggest risk visible in this schema>",
+  "categories": {
+    "pipeline_stage_design": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },
+    "lead_source_attribution": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },
+    "data_completeness": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },
+    "reporting_architecture": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },
+    "revenue_leakage": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." }
+  },
+  "top_3_fixes": [
+    { "rank": 1, "title": "...", "description": "...", "effort": "Low|Medium|High", "impact": "Low|Medium|High" },
+    { "rank": 2, "title": "...", "description": "...", "effort": "Low|Medium|High", "impact": "Low|Medium|High" },
+    { "rank": 3, "title": "...", "description": "...", "effort": "Low|Medium|High", "impact": "Low|Medium|High" }
+  ]
+}`;
+
+  const userMessage = `CRM: ${context.crm}
+Company size: ${context.company_size} employees
+Industry: ${context.industry || 'Not specified'}
+ARR: ${context.arr || 'Not provided'}
+
+Here is the raw schema export (field names, types, picklists, and configuration only — no records):
+
+${schemaText}
+
+Analyze this schema and return the full audit report JSON.`;
+
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 8192,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+
+  const textBlock = response.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') throw new Error('No text response from Claude');
+
+  const raw = textBlock.text.trim();
+  const jsonStart = raw.indexOf('{');
+  const jsonEnd = raw.lastIndexOf('}');
+  if (jsonStart === -1 || jsonEnd === -1) throw new Error('No JSON found in Claude response');
+
+  return JSON.parse(raw.slice(jsonStart, jsonEnd + 1)) as AuditReport;
+}
