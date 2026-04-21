@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAudit } from '@/lib/claude';
 import { saveLead } from '@/lib/drive';
+import { sendThankYou } from '@/lib/email';
 import { AuditAnswers } from '@/types/audit';
 
 export async function POST(req: NextRequest) {
@@ -18,14 +19,18 @@ export async function POST(req: NextRequest) {
 
     const report = await generateAudit(answers);
 
-    // Non-blocking — do not fail the request if Drive write fails
-    saveLead({ email, name: name ?? '', answers, report }).catch((err) => {
-      console.error('Drive save failed:', err);
+    // Non-blocking side-effects — log errors but don't fail the response
+    saveLead({ email, name: name ?? '', answers, report }).catch((err: unknown) => {
+      console.error('[drive] save failed:', err instanceof Error ? err.message : err);
+    });
+
+    sendThankYou(email, name ?? '', report).catch((err: unknown) => {
+      console.error('[email] send failed:', err instanceof Error ? err.message : err);
     });
 
     return NextResponse.json({ report });
   } catch (err) {
-    console.error('Audit API error:', err);
+    console.error('[audit] error:', err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Audit generation failed' },
       { status: 500 }

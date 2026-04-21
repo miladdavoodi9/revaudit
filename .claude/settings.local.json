@@ -23,7 +23,9 @@
       "Bash(chmod +x /Users/miladdavoodi/Projects/revaudit/launch.command)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(xargs kill *)"
+      "Bash(xargs kill *)",
+      "Read(//tmp/**)",
+      "WebFetch(domain:www.3mdventures.com)"
     ]
   }
 }

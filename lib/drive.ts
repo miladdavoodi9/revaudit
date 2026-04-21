@@ -19,21 +19,22 @@ const HEADERS = [
   'CRM',
   'Company Size',
   'Industry',
+  'ARR',
   'Answers JSON',
   'Report JSON',
 ];
 
 async function getSheets() {
-  const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    'http://localhost:3000'
-  );
+  const clientId     = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  oauth2Client.setCredentials({
-    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-  });
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error('Missing Google OAuth env vars (CLIENT_ID, CLIENT_SECRET, or REFRESH_TOKEN)');
+  }
 
+  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, 'http://localhost:3000');
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
   return google.sheets({ version: 'v4', auth: oauth2Client });
 }
 
@@ -47,11 +48,8 @@ async function ensureTab(
   if (!existingTabs.includes(TAB_NAME)) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
-      requestBody: {
-        requests: [{ addSheet: { properties: { title: TAB_NAME } } }],
-      },
+      requestBody: { requests: [{ addSheet: { properties: { title: TAB_NAME } } }] },
     });
-
     await sheets.spreadsheets.values.update({
       spreadsheetId,
       range: `${TAB_NAME}!A1`,
@@ -63,9 +61,9 @@ async function ensureTab(
 
 export async function saveLead(lead: AuditLead): Promise<void> {
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-  if (!spreadsheetId || spreadsheetId === 'your_sheet_id_here') {
-    throw new Error('GOOGLE_SHEET_ID not set');
-  }
+  if (!spreadsheetId) throw new Error('GOOGLE_SHEET_ID not set');
+
+  console.log('[drive] saving lead for', lead.email);
 
   const sheets = await getSheets();
   await ensureTab(sheets, spreadsheetId);
@@ -79,7 +77,8 @@ export async function saveLead(lead: AuditLead): Promise<void> {
     lead.report.summary_headline,
     lead.answers.crm,
     lead.answers.company_size,
-    lead.answers.industry,
+    lead.answers.industry ?? '',
+    lead.answers.arr ?? '',
     JSON.stringify(lead.answers),
     JSON.stringify(lead.report),
   ];
@@ -90,4 +89,6 @@ export async function saveLead(lead: AuditLead): Promise<void> {
     valueInputOption: 'RAW',
     requestBody: { values: [row] },
   });
+
+  console.log('[drive] lead saved successfully for', lead.email);
 }
