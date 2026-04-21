@@ -96,7 +96,8 @@ Respond with ONLY valid JSON. No markdown, no explanation, no code blocks. Use t
   "overall_score": ${scores.overall},
   "overall_label": "${getRiskLabel(scores.overall)}",
   "summary_headline": "One punchy sentence summarizing the single biggest risk in their RevOps stack",
-  "overall_arr_impact": "One sentence combining all 5 categories into a single total estimated ARR at risk — specific dollar range or percentage tied to their ARR or company size.",
+  "overall_arr_impact_amount": "$X–$Y or ~$XM (short dollar range only — no words, just the figure, e.g. '$400K–$800K' or '~$1.2M')",
+  "overall_arr_impact": "One sentence explaining what is driving that total risk across the 5 categories.",
   "categories": {
     "pipeline_stage_design": {
       "score": ${scores.pipeline_stage_design},
@@ -246,7 +247,8 @@ Respond with ONLY valid JSON. No markdown, no explanation, no code blocks:
   "overall_score": <average of 5 category scores>,
   "overall_label": "<label>",
   "summary_headline": "<one punchy sentence — the single biggest risk visible in this schema>",
-  "overall_arr_impact": "<one sentence combining all 5 categories into a total estimated ARR at risk — specific dollar range or percentage tied to their ARR or company size>",
+  "overall_arr_impact_amount": "<short dollar range only — no words, just the figure, e.g. '$400K–$800K' or '~$1.2M'>",
+  "overall_arr_impact": "<one sentence explaining what is driving that total risk across the 5 categories>",
   "categories": {
     "pipeline_stage_design": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },
     "lead_source_attribution": { "score": <0-100>, "label": "<label>", "findings": ["...","...","..."], "arr_impact": "..." },

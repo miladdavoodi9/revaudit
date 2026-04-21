@@ -128,16 +128,12 @@ export default function AuditReport({ report, email }: AuditReportProps) {
 
       {/* ARR Impact — standalone callout */}
       <div className="rounded-2xl p-px bg-gradient-to-r from-orange-600 via-orange-400 to-yellow-400">
-        <div className="bg-gray-950 rounded-2xl px-8 py-6 flex flex-col sm:flex-row items-center gap-5">
-          <div className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30">
-            <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            </svg>
-          </div>
-          <div className="flex-1 text-center sm:text-left">
-            <p className="text-xs font-bold uppercase tracking-widest text-orange-400 mb-1">Estimated ARR at Risk</p>
-            <p className="text-white text-lg font-semibold leading-snug">{report.overall_arr_impact ?? '—'}</p>
-          </div>
+        <div className="bg-gray-950 rounded-2xl px-8 py-7 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-orange-400 mb-3">Estimated ARR at Risk</p>
+          <p className="text-5xl sm:text-6xl font-extrabold text-orange-300 leading-none mb-3">
+            {report.overall_arr_impact_amount ?? '—'}
+          </p>
+          <p className="text-gray-400 text-sm max-w-lg mx-auto leading-relaxed">{report.overall_arr_impact}</p>
         </div>
       </div>
 
