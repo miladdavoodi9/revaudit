@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/3md-ventures.svg" alt="3MD Ventures" width="180" />
+</p>
+
 # RevAudit — AI-Powered RevOps Audit Tool
 
 Built by [3MD Ventures](https://www.3mdventures.com). A lead generation and qualification tool that scores a prospect's revenue operations stack across 5 categories using 10 diagnostic questions, generates a Claude-powered audit report, and delivers tailored recommendations with estimated ARR impact.
