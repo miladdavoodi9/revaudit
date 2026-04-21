@@ -93,9 +93,6 @@ export default function AuditReport({ report, email }: AuditReportProps) {
     <div className="w-full max-w-3xl mx-auto space-y-6 pb-16">
       {/* Header */}
       <div className="text-center pt-6">
-        <div className="flex justify-center mb-4">
-          <Image src="/3md-ventures.svg" alt="3MD Ventures" width={120} height={52} />
-        </div>
         <h1 className="text-3xl font-bold text-white mb-3">Your RevOps Audit Report</h1>
         <p className="text-gray-400 italic text-base max-w-xl mx-auto">
           &ldquo;{report.summary_headline}&rdquo;

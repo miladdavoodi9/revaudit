@@ -81,12 +81,12 @@ The scores for this audit have already been calculated by the scoring engine —
 ${arrContext}
 
 For each category, provide:
-- 3 specific findings: what's broken or at risk, written as specific observations about THEIR RevOps — not generic advice
-- arr_impact: a dollar range or percentage tied to the specific gap. Be concrete. Use their ARR if provided.
+- 3 findings: each finding is exactly 1 sentence — a sharp, specific observation about what's broken in their stack. No generic advice.
+- arr_impact: exactly 1 sentence with a specific dollar or percentage number. Results-focused. e.g. "Untracked loss reasons are masking ~15% win-rate drag worth an estimated $X annually."
 
 For top_3_fixes, pick the 3 highest-leverage interventions. Each fix needs:
 - A concrete title (not "Improve X" — say exactly what to do, e.g. "Enforce Loss Reason as a Required CRM Field")
-- A 2-sentence description: what exactly to do and why it matters for revenue
+- description: exactly 1 sentence — what to do and the direct revenue outcome. No preamble.
 - effort: "Low" | "Medium" | "High"
 - impact: "Low" | "Medium" | "High"
 

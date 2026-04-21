@@ -105,32 +105,41 @@ export async function sendInternalSummary(
   answers: AuditAnswers,
   report: AuditReport
 ): Promise<void> {
-  const categoryRows = Object.entries(report.categories).map(([key, cat]) => `
-    <tr style="border-bottom:1px solid #f3f4f6;">
-      <td style="padding:14px 16px;font-size:13px;font-weight:600;color:#111827;">${CATEGORY_NAMES[key] ?? key}</td>
-      <td style="padding:14px 8px;font-size:13px;font-weight:700;color:${scoreColor(cat.score)};text-align:center;">${cat.score}</td>
-      <td style="padding:14px 8px;text-align:center;">
-        <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${scoreColor(cat.score)}22;color:${scoreColor(cat.score)};">${cat.label}</span>
-      </td>
-    </tr>
-    <tr style="border-bottom:1px solid #f3f4f6;">
-      <td colspan="3" style="padding:0 16px 14px;">
-        <ul style="margin:0;padding-left:18px;">
-          ${cat.findings.map(f => `<li style="font-size:12px;color:#6b7280;margin-bottom:4px;">${f}</li>`).join('')}
-        </ul>
-        <p style="margin:8px 0 0;font-size:12px;color:#f97316;"><strong>ARR Impact:</strong> ${cat.arr_impact}</p>
-      </td>
-    </tr>`).join('');
+  const submittedAt = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'medium', timeStyle: 'short' });
 
-  const fixRows = report.top_3_fixes.map(fix => `
-    <tr style="border-bottom:1px solid #f3f4f6;">
-      <td style="padding:12px 16px;font-size:13px;font-weight:600;color:#111827;">#${fix.rank} ${fix.title}</td>
-      <td style="padding:12px 8px;font-size:12px;color:#6b7280;text-align:center;">Effort: ${fix.effort}</td>
-      <td style="padding:12px 8px;font-size:12px;color:#6b7280;text-align:center;">Impact: ${fix.impact}</td>
-    </tr>
-    <tr style="border-bottom:1px solid #f3f4f6;">
-      <td colspan="3" style="padding:0 16px 12px;font-size:12px;color:#6b7280;">${fix.description}</td>
-    </tr>`).join('');
+  const categoryDetail = Object.entries(report.categories).map(([key, cat]) => `
+    <!-- ${CATEGORY_NAMES[key]} -->
+    <tr><td colspan="3" style="padding:16px 28px 4px;background:#f9fafb;border-top:2px solid #e5e7eb;">
+      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td style="font-size:13px;font-weight:700;color:#111827;">${CATEGORY_NAMES[key] ?? key}</td>
+        <td align="right">
+          <span style="font-size:20px;font-weight:800;color:${scoreColor(cat.score)};">${cat.score}</span>
+          <span style="font-size:12px;color:#9ca3af;">/100&nbsp;&nbsp;</span>
+          <span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${scoreColor(cat.score)}22;color:${scoreColor(cat.score)};">${cat.label}</span>
+        </td>
+      </tr></table>
+    </td></tr>
+    <tr><td colspan="3" style="padding:8px 28px 4px;">
+      <ul style="margin:0;padding-left:18px;">
+        ${cat.findings.map(f => `<li style="font-size:12px;color:#374151;margin-bottom:5px;line-height:1.5;">${f}</li>`).join('')}
+      </ul>
+    </td></tr>
+    <tr><td colspan="3" style="padding:6px 28px 16px;">
+      <p style="margin:0;font-size:12px;font-weight:600;color:#f97316;">ARR Impact: <span style="font-weight:400;">${cat.arr_impact}</span></p>
+    </td></tr>`).join('');
+
+  const fixDetail = report.top_3_fixes.map(fix => `
+    <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:14px 28px;">
+      <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td style="vertical-align:top;padding-right:12px;">
+          <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#111827;">#${fix.rank} — ${fix.title}</p>
+          <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.6;">${fix.description}</p>
+        </td>
+        <td style="white-space:nowrap;vertical-align:top;text-align:right;font-size:11px;color:#9ca3af;">
+          Effort: ${fix.effort}<br>Impact: ${fix.impact}
+        </td>
+      </tr></table>
+    </td></tr>`).join('');
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -138,35 +147,37 @@ export async function sendInternalSummary(
 <body style="margin:0;padding:0;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px;">
 <tr><td align="center">
-<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;">
+<table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
 
-  <tr><td style="background:#00091e;border-radius:12px 12px 0 0;padding:20px 28px;">
-    <p style="margin:0;font-size:11px;font-weight:600;letter-spacing:3px;color:#1097CD;text-transform:uppercase;">Internal Lead Alert</p>
-    <h1 style="margin:4px 0 0;font-size:20px;font-weight:700;color:#fff;">New RevAudit Submission</h1>
+  <!-- Announcement banner -->
+  <tr><td style="background:#00091e;padding:24px 28px;">
+    <p style="margin:0 0 4px;font-size:11px;font-weight:600;letter-spacing:3px;color:#1097CD;text-transform:uppercase;">New Submission · ${submittedAt} CT</p>
+    <h1 style="margin:0;font-size:22px;font-weight:700;color:#fff;">Someone just completed their RevOps Audit</h1>
   </td></tr>
 
-  <!-- Lead info -->
-  <tr><td style="background:#fff;padding:24px 28px;border-bottom:1px solid #f3f4f6;">
+  <!-- Who submitted -->
+  <tr><td style="padding:20px 28px;border-bottom:2px solid #e5e7eb;">
+    <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Who Submitted</p>
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="font-size:13px;color:#9ca3af;padding-bottom:8px;width:120px;">Name</td>
-        <td style="font-size:13px;font-weight:600;color:#111827;padding-bottom:8px;">${name || '—'}</td>
+        <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;width:110px;">Name</td>
+        <td style="font-size:13px;font-weight:600;color:#111827;padding-bottom:6px;">${name || '—'}</td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#9ca3af;padding-bottom:8px;">Email</td>
-        <td style="font-size:13px;font-weight:600;color:#0068B5;padding-bottom:8px;"><a href="mailto:${email}" style="color:#0068B5;text-decoration:none;">${email}</a></td>
+        <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">Email</td>
+        <td style="font-size:13px;padding-bottom:6px;"><a href="mailto:${email}" style="color:#0068B5;text-decoration:none;font-weight:600;">${email}</a></td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#9ca3af;padding-bottom:8px;">CRM</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:8px;">${answers.crm}</td>
+        <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">CRM</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.crm}</td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#9ca3af;padding-bottom:8px;">Company Size</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:8px;">${answers.company_size} employees</td>
+        <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">Company Size</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.company_size} employees</td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#9ca3af;padding-bottom:8px;">Industry</td>
-        <td style="font-size:13px;color:#374151;padding-bottom:8px;">${answers.industry || '—'}</td>
+        <td style="font-size:13px;color:#9ca3af;padding-bottom:6px;">Industry</td>
+        <td style="font-size:13px;color:#374151;padding-bottom:6px;">${answers.industry || '—'}</td>
       </tr>
       <tr>
         <td style="font-size:13px;color:#9ca3af;">ARR</td>
@@ -175,34 +186,48 @@ export async function sendInternalSummary(
     </table>
   </td></tr>
 
-  <!-- Overall score -->
-  <tr><td style="background:#fff;padding:20px 28px;border-bottom:1px solid #f3f4f6;">
-    <table cellpadding="0" cellspacing="0"><tr>
-      <td style="padding-right:16px;">
-        <p style="margin:0 0 2px;font-size:11px;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Overall</p>
-        <p style="margin:0;font-size:36px;font-weight:800;color:${scoreColor(report.overall_score)};line-height:1;">${report.overall_score}<span style="font-size:16px;font-weight:400;color:#9ca3af;">/100</span></p>
+  <!-- Results at a glance -->
+  <tr><td style="padding:20px 28px;border-bottom:2px solid #e5e7eb;">
+    <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Results at a Glance</p>
+    <table cellpadding="0" cellspacing="0" style="margin-bottom:16px;"><tr>
+      <td style="padding-right:20px;">
+        <p style="margin:0;font-size:48px;font-weight:800;color:${scoreColor(report.overall_score)};line-height:1;">${report.overall_score}</p>
+        <p style="margin:2px 0 0;font-size:12px;color:#9ca3af;">out of 100</p>
       </td>
       <td style="vertical-align:middle;">
-        <span style="display:inline-block;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:600;background:${scoreColor(report.overall_score)}22;color:${scoreColor(report.overall_score)};">${report.overall_label}</span>
-        <p style="margin:6px 0 0;font-size:13px;color:#6b7280;font-style:italic;">&ldquo;${report.summary_headline}&rdquo;</p>
+        <span style="display:inline-block;padding:5px 12px;border-radius:6px;font-size:13px;font-weight:600;background:${scoreColor(report.overall_score)}22;color:${scoreColor(report.overall_score)};">${report.overall_label}</span>
+        <p style="margin:8px 0 0;font-size:13px;color:#374151;font-style:italic;">&ldquo;${report.summary_headline}&rdquo;</p>
       </td>
     </tr></table>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${Object.entries(report.categories).map(([key, cat]) => `
+      <tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px 0;">
+        <table width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td style="font-size:12px;color:#374151;">${CATEGORY_NAMES[key]}</td>
+          <td align="right">
+            <span style="font-size:13px;font-weight:700;color:${scoreColor(cat.score)};margin-right:8px;">${cat.score}</span>
+            <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:${scoreColor(cat.score)}22;color:${scoreColor(cat.score)};">${cat.label}</span>
+          </td>
+        </tr></table>
+      </td></tr>`).join('')}
+    </table>
   </td></tr>
 
-  <!-- Categories -->
-  <tr><td style="background:#fff;padding:0;">
-    <p style="margin:0;padding:16px 28px 8px;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Category Breakdown</p>
-    <table width="100%" cellpadding="0" cellspacing="0">${categoryRows}</table>
+  <!-- Full breakdown -->
+  <tr><td style="padding:20px 28px 8px;">
+    <p style="margin:0;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Full Category Breakdown</p>
   </td></tr>
+  <table width="100%" cellpadding="0" cellspacing="0">${categoryDetail}</table>
 
   <!-- Top 3 fixes -->
-  <tr><td style="background:#fff;padding:0;border-top:1px solid #e5e7eb;">
-    <p style="margin:0;padding:16px 28px 8px;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Top 3 Fixes</p>
-    <table width="100%" cellpadding="0" cellspacing="0">${fixRows}</table>
+  <tr><td style="padding:20px 28px 8px;border-top:2px solid #e5e7eb;">
+    <p style="margin:0;font-size:11px;font-weight:600;letter-spacing:2px;color:#9ca3af;text-transform:uppercase;">Top 3 Recommended Fixes</p>
   </td></tr>
+  <table width="100%" cellpadding="0" cellspacing="0">${fixDetail}</table>
 
-  <tr><td style="background:#f3f4f6;border-radius:0 0 12px 12px;padding:16px 28px;text-align:center;">
-    <p style="margin:0;font-size:12px;color:#9ca3af;">RevAudit by 3MD Ventures &nbsp;·&nbsp; Submitted ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', dateStyle: 'medium', timeStyle: 'short' })} CT</p>
+  <!-- Footer -->
+  <tr><td style="background:#f3f4f6;padding:14px 28px;text-align:center;">
+    <p style="margin:0;font-size:11px;color:#9ca3af;">RevAudit · 3MD Ventures · Internal use only</p>
   </td></tr>
 
 </table>
@@ -214,7 +239,7 @@ export async function sendInternalSummary(
   const { error } = await resend.emails.send({
     from: FROM,
     to: INTERNAL,
-    subject: `[RevAudit Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label} · ${answers.crm} · ${answers.company_size}`,
+    subject: `[New Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label} · ${answers.crm} · ${answers.company_size}`,
     html,
   });
 
