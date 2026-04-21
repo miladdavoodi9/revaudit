@@ -125,6 +125,7 @@ const QUESTIONS: Question[] = [
 
 const CRM_OPTIONS = ['Salesforce', 'HubSpot', 'Pipedrive', 'Monday.com', 'Other'];
 const SIZE_OPTIONS = ['1–10', '11–50', '51–200', '201–500', '500+'];
+const ARR_OPTIONS = ['Under $500K', '$500K–$1M', '$1M–$5M', '$5M–$20M', '$20M–$50M', '$50M+'];
 
 type PartialAnswers = Partial<Pick<AuditAnswers, 'q1' | 'q2' | 'q3' | 'q4' | 'q5' | 'q6' | 'q7' | 'q8' | 'q9' | 'q10'>>;
 
@@ -135,7 +136,7 @@ interface AuditFormProps {
 export default function AuditForm({ onComplete }: AuditFormProps) {
   const [step, setStep] = useState(0); // 0-9 = questions, 10 = metadata
   const [answers, setAnswers] = useState<PartialAnswers>({});
-  const [meta, setMeta] = useState({ crm: '', company_size: '', industry: '' });
+  const [meta, setMeta] = useState({ crm: '', company_size: '', industry: '', arr: '' });
   const [selected, setSelected] = useState<AnswerOption | null>(null);
 
   const currentQuestion = QUESTIONS[step];
@@ -154,7 +155,8 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
     e.preventDefault();
     if (!meta.crm || !meta.company_size) return;
     const complete = answers as Pick<AuditAnswers, 'q1' | 'q2' | 'q3' | 'q4' | 'q5' | 'q6' | 'q7' | 'q8' | 'q9' | 'q10'>;
-    onComplete({ ...complete, ...meta });
+    const { arr, ...requiredMeta } = meta;
+    onComplete({ ...complete, ...requiredMeta, ...(arr ? { arr } : {}) });
   }
 
   return (
@@ -208,6 +210,14 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                 </div>
               </button>
             ))}
+          </div>
+
+          {/* Savings teaser */}
+          <div className="mt-6 flex items-center gap-3 px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />
+            <p className="text-xs text-gray-500">
+              Complete your audit to unlock your <span className="text-brand-400 font-medium">estimated annual savings</span> — specific to your stack.
+            </p>
           </div>
         </div>
       ) : (
@@ -277,6 +287,31 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                 placeholder="e.g. SaaS, FinTech, Healthcare"
                 className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors text-sm"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">
+                Current ARR <span className="text-gray-600">(optional)</span>
+              </label>
+              <p className="text-xs text-brand-400 mb-2">
+                Sharing your ARR lets us calculate the exact dollar value of each finding — not just a score.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {ARR_OPTIONS.map((arr) => (
+                  <button
+                    key={arr}
+                    type="button"
+                    onClick={() => setMeta((m) => ({ ...m, arr: m.arr === arr ? '' : arr }))}
+                    className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                      meta.arr === arr
+                        ? 'bg-brand-500 border-brand-500 text-white'
+                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-brand-500 hover:text-white'
+                    }`}
+                  >
+                    {arr}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <button

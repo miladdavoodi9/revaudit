@@ -14,6 +14,7 @@ export interface AuditAnswers {
   crm: string;
   company_size: string;
   industry: string;
+  arr?: string;
 }
 
 export type RiskLabel = 'Critical' | 'High Risk' | 'Needs Work' | 'Good' | 'Strong';
