@@ -167,7 +167,7 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
         </div>
         <div className="w-full bg-gray-800 rounded-full h-1.5">
           <div
-            className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500"
+            className="bg-brand-400 h-1.5 rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -176,7 +176,7 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
       {step < 10 ? (
         <div className="animate-fade-in">
           <div className="mb-2">
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
+            <span className="text-xs font-medium text-brand-400 uppercase tracking-widest">
               {currentQuestion.category}
             </span>
           </div>
@@ -190,16 +190,16 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                 onClick={() => handleSelect(opt.value)}
                 className={`w-full text-left px-5 py-4 rounded-2xl border transition-all duration-150 group ${
                   selected === opt.value
-                    ? 'bg-indigo-600 border-indigo-500 text-white'
-                    : 'bg-gray-900 border-gray-800 text-gray-300 hover:border-indigo-600 hover:text-white hover:bg-gray-800'
+                    ? 'bg-brand-500 border-brand-500 text-white'
+                    : 'bg-gray-900 border-gray-800 text-gray-300 hover:border-brand-500 hover:text-white hover:bg-gray-800'
                 }`}
               >
                 <div className="flex items-start gap-4">
                   <span
                     className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold mt-0.5 ${
                       selected === opt.value
-                        ? 'bg-white text-indigo-600'
-                        : 'bg-gray-800 text-gray-400 group-hover:bg-indigo-900 group-hover:text-indigo-300'
+                        ? 'bg-white text-brand-500'
+                        : 'bg-gray-800 text-gray-400 group-hover:bg-brand-900 group-hover:text-brand-300'
                     }`}
                   >
                     {opt.value}
@@ -213,7 +213,7 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
       ) : (
         <form onSubmit={handleMetaSubmit} className="animate-fade-in">
           <div className="mb-2">
-            <span className="text-xs font-medium text-indigo-400 uppercase tracking-widest">
+            <span className="text-xs font-medium text-brand-400 uppercase tracking-widest">
               Almost done
             </span>
           </div>
@@ -234,8 +234,8 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                     onClick={() => setMeta((m) => ({ ...m, crm }))}
                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                       meta.crm === crm
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-indigo-600 hover:text-white'
+                        ? 'bg-brand-500 border-brand-500 text-white'
+                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-brand-500 hover:text-white'
                     }`}
                   >
                     {crm}
@@ -256,8 +256,8 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                     onClick={() => setMeta((m) => ({ ...m, company_size: size }))}
                     className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
                       meta.company_size === size
-                        ? 'bg-indigo-600 border-indigo-500 text-white'
-                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-indigo-600 hover:text-white'
+                        ? 'bg-brand-500 border-brand-500 text-white'
+                        : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-brand-500 hover:text-white'
                     }`}
                   >
                     {size}
@@ -275,14 +275,14 @@ export default function AuditForm({ onComplete }: AuditFormProps) {
                 value={meta.industry}
                 onChange={(e) => setMeta((m) => ({ ...m, industry: e.target.value }))}
                 placeholder="e.g. SaaS, FinTech, Healthcare"
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-600 transition-colors text-sm"
+                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors text-sm"
               />
             </div>
 
             <button
               type="submit"
               disabled={!meta.crm || !meta.company_size}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
+              className="w-full py-4 bg-brand-500 hover:bg-brand-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
             >
               Generate My Audit →
             </button>

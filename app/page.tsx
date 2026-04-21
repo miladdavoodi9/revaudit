@@ -18,7 +18,7 @@ export default function Home() {
 
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-800 rounded-full mb-8">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+          <span className="w-1.5 h-1.5 bg-brand-300 rounded-full" />
           <span className="text-xs font-medium text-gray-400 tracking-wide">
             Free · 2 minutes · No CRM access required
           </span>
@@ -38,7 +38,7 @@ export default function Home() {
         {/* CTA */}
         <Link
           href="/audit"
-          className="inline-block px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors text-base tracking-wide shadow-lg shadow-indigo-950"
+          className="inline-block px-8 py-4 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-base tracking-wide shadow-lg shadow-brand-950"
         >
           Start My Free Audit →
         </Link>

@@ -2,6 +2,18 @@
 
 @theme inline {
   --font-sans: var(--font-inter);
+
+  /* 3MD Ventures brand palette */
+  --color-brand-50:   #e6f0ff;
+  --color-brand-100:  #b3d0ff;
+  --color-brand-300:  #00C7FD;
+  --color-brand-400:  #1097CD;
+  --color-brand-500:  #0068B5;
+  --color-brand-600:  #00349B;
+  --color-brand-700:  #002478;
+  --color-brand-800:  #001855;
+  --color-brand-900:  #000f35;
+  --color-brand-950:  #00091e;
 }
 
 body {

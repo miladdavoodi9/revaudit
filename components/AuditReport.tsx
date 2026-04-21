@@ -64,7 +64,7 @@ function EffortBadge({ value, type }: { value: EffortImpact; type: 'effort' | 'i
   const colorMap: Record<EffortImpact, string> = {
     Low: type === 'effort' ? 'bg-emerald-900 text-emerald-300' : 'bg-gray-800 text-gray-400',
     Medium: 'bg-yellow-900 text-yellow-300',
-    High: type === 'effort' ? 'bg-red-900 text-red-300' : 'bg-indigo-900 text-indigo-300',
+    High: type === 'effort' ? 'bg-red-900 text-red-300' : 'bg-brand-900 text-brand-300',
   };
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${colorMap[value]}`}>
@@ -156,7 +156,7 @@ export default function AuditReport({ report, email }: AuditReportProps) {
         <div key={key} className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-indigo-400 uppercase mb-1">
+              <p className="text-xs font-semibold tracking-widest text-brand-400 uppercase mb-1">
                 Category
               </p>
               <h3 className="text-lg font-semibold text-white">{CATEGORY_META[key].display}</h3>
@@ -198,7 +198,7 @@ export default function AuditReport({ report, email }: AuditReportProps) {
           {report.top_3_fixes.map((fix) => (
             <div key={fix.rank} className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-indigo-900 rounded-xl flex items-center justify-center text-indigo-300 font-bold text-sm">
+                <div className="flex-shrink-0 w-8 h-8 bg-brand-900 rounded-xl flex items-center justify-center text-brand-300 font-bold text-sm">
                   {fix.rank}
                 </div>
                 <div className="flex-1">
@@ -216,16 +216,16 @@ export default function AuditReport({ report, email }: AuditReportProps) {
       </div>
 
       {/* CTA Block */}
-      <div className="bg-indigo-950 border border-indigo-900 rounded-2xl p-8 text-center">
+      <div className="bg-brand-950 border border-brand-800 rounded-2xl p-8 text-center">
         <h2 className="text-xl font-bold text-white mb-2">Want these fixed in 30 days?</h2>
-        <p className="text-indigo-300 text-sm mb-6 max-w-md mx-auto">
+        <p className="text-brand-300 text-sm mb-6 max-w-md mx-auto">
           Book a free 30-minute RevOps review with Milad. We&apos;ll walk through your top 3 fixes and build a 30-day action plan — no pitch, just specifics.
         </p>
         <a
           href={calendlyUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
+          className="inline-block px-8 py-3.5 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
         >
           Book a Free 30-Min Review →
         </a>

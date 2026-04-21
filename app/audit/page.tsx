@@ -67,7 +67,7 @@ export default function AuditPage() {
 
         {stage === 'loading' && (
           <div className="flex flex-col items-center justify-center py-24 gap-6">
-            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
             <div className="text-center">
               <p className="text-white font-semibold text-lg mb-1">Auditing your RevOps stack…</p>
               <p className="text-gray-500 text-sm">This takes about 10 seconds</p>
@@ -96,7 +96,7 @@ export default function AuditPage() {
                   setReport(null);
                   setErrorMsg('');
                 }}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors text-sm"
+                className="px-6 py-3 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-sm"
               >
                 Start Over
               </button>

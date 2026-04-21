@@ -29,8 +29,8 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
         <div className="mb-6">
-          <div className="w-10 h-10 bg-indigo-900 rounded-xl flex items-center justify-center mb-4">
-            <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-10 h-10 bg-brand-900 rounded-xl flex items-center justify-center mb-4">
+            <svg className="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
@@ -49,7 +49,7 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name (optional)"
-              className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-indigo-600 transition-colors text-sm"
+              className="w-full px-4 py-3 bg-gray-950 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 transition-colors text-sm"
             />
           </div>
 
@@ -64,7 +64,7 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
               placeholder="Work email *"
               required
               className={`w-full px-4 py-3 bg-gray-950 border rounded-xl text-white placeholder-gray-600 focus:outline-none transition-colors text-sm ${
-                error ? 'border-red-600 focus:border-red-500' : 'border-gray-800 focus:border-indigo-600'
+                error ? 'border-red-600 focus:border-red-500' : 'border-gray-800 focus:border-brand-500'
               }`}
             />
             {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
@@ -72,7 +72,7 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
+            className="w-full py-3.5 bg-brand-500 hover:bg-brand-400 text-white font-semibold rounded-xl transition-colors text-sm tracking-wide"
           >
             Unlock My Report →
           </button>
