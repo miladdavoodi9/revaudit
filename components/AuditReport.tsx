@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import {
   AuditReport as AuditReportType,
   CATEGORY_META,
@@ -92,9 +93,9 @@ export default function AuditReport({ report, email }: AuditReportProps) {
     <div className="w-full max-w-3xl mx-auto space-y-6 pb-16">
       {/* Header */}
       <div className="text-center pt-6">
-        <span className="inline-block text-xs font-semibold tracking-widest text-indigo-400 uppercase mb-3">
-          RevAudit by 3MD Ventures
-        </span>
+        <div className="flex justify-center mb-4">
+          <Image src="/3md-ventures.svg" alt="3MD Ventures" width={120} height={52} />
+        </div>
         <h1 className="text-3xl font-bold text-white mb-3">Your RevOps Audit Report</h1>
         <p className="text-gray-400 italic text-base max-w-xl mx-auto">
           &ldquo;{report.summary_headline}&rdquo;
@@ -231,9 +232,10 @@ export default function AuditReport({ report, email }: AuditReportProps) {
       </div>
 
       {/* Footer */}
-      <div className="text-center pt-2">
+      <div className="flex flex-col items-center gap-3 pt-2">
+        <Image src="/3md-ventures.svg" alt="3MD Ventures" width={90} height={39} className="opacity-25" />
         <p className="text-gray-600 text-xs">
-          RevAudit by 3MD Ventures · Built in Austin, TX · Report sent to {email}
+          Built in Austin, TX · Report sent to {email}
         </p>
       </div>
     </div>

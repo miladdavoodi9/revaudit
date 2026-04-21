@@ -24,16 +24,17 @@ const HEADERS = [
 ];
 
 async function getSheets() {
-  const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!credentialsJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not set');
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    'http://localhost:3000'
+  );
 
-  const credentials = JSON.parse(credentialsJson);
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  oauth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
   });
 
-  return google.sheets({ version: 'v4', auth });
+  return google.sheets({ version: 'v4', auth: oauth2Client });
 }
 
 async function ensureTab(
@@ -62,7 +63,9 @@ async function ensureTab(
 
 export async function saveLead(lead: AuditLead): Promise<void> {
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-  if (!spreadsheetId) throw new Error('GOOGLE_SHEET_ID not set');
+  if (!spreadsheetId || spreadsheetId === 'your_sheet_id_here') {
+    throw new Error('GOOGLE_SHEET_ID not set');
+  }
 
   const sheets = await getSheets();
   await ensureTab(sheets, spreadsheetId);

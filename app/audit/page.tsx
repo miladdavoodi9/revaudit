@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import AuditForm from '@/components/AuditForm';
 import EmailCapture from '@/components/EmailCapture';
 import AuditReport from '@/components/AuditReport';
@@ -50,10 +51,8 @@ export default function AuditPage() {
     <main className="min-h-screen bg-gray-950 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Brand */}
-        <div className="text-center mb-10">
-          <span className="text-xs font-semibold tracking-widest text-indigo-400 uppercase">
-            RevAudit · 3MD Ventures
-          </span>
+        <div className="flex justify-center mb-10">
+          <Image src="/3md-ventures.svg" alt="3MD Ventures" width={120} height={52} priority />
         </div>
 
         {stage === 'form' && (
