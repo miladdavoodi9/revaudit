@@ -54,6 +54,11 @@ export async function sendThankYou(
     <p style="margin:4px 0 8px;font-size:13px;color:#9ca3af;">out of 100</p>
     <span style="display:inline-block;padding:5px 14px;border-radius:6px;font-size:13px;font-weight:600;background:${color}22;color:${color};">${report.overall_label}</span>
     <p style="margin:16px 0 0;font-size:15px;color:#374151;font-style:italic;line-height:1.6;">&ldquo;${report.summary_headline}&rdquo;</p>
+    ${report.overall_arr_impact ? `
+    <div style="margin:20px auto 0;max-width:400px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 16px;text-align:left;">
+      <p style="margin:0 0 3px;font-size:10px;font-weight:700;letter-spacing:2px;color:#ea580c;text-transform:uppercase;">ARR at Risk</p>
+      <p style="margin:0;font-size:13px;color:#7c2d12;line-height:1.5;">${report.overall_arr_impact}</p>
+    </div>` : ''}
   </td></tr>
 
   <!-- Top fix -->

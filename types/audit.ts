@@ -40,6 +40,7 @@ export interface AuditReport {
   overall_score: number;
   overall_label: RiskLabel;
   summary_headline: string;
+  overall_arr_impact: string;
   categories: {
     pipeline_stage_design: CategoryResult;
     lead_source_attribution: CategoryResult;
