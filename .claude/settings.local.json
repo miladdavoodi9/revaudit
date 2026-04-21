@@ -25,7 +25,9 @@
       "Bash(git push *)",
       "Bash(xargs kill *)",
       "Read(//tmp/**)",
-      "WebFetch(domain:www.3mdventures.com)"
+      "WebFetch(domain:www.3mdventures.com)",
+      "Bash(git pull *)",
+      "Bash(git stash *)"
     ]
   }
 }
