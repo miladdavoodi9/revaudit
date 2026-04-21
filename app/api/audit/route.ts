@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAudit } from '@/lib/claude';
 import { saveLead } from '@/lib/drive';
-import { sendThankYou } from '@/lib/email';
+import { sendThankYou, sendInternalSummary } from '@/lib/email';
 import { AuditAnswers } from '@/types/audit';
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,11 @@ export async function POST(req: NextRequest) {
     });
 
     sendThankYou(email, name ?? '', report).catch((err: unknown) => {
-      console.error('[email] send failed:', err instanceof Error ? err.message : err);
+      console.error('[email] thank-you failed:', err instanceof Error ? err.message : err);
+    });
+
+    sendInternalSummary(email, name ?? '', answers, report).catch((err: unknown) => {
+      console.error('[email] internal summary failed:', err instanceof Error ? err.message : err);
     });
 
     return NextResponse.json({ report });
