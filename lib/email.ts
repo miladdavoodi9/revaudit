@@ -1,10 +1,19 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { AuditAnswers, AuditReport } from '@/types/audit';
 
-const resend   = new Resend(process.env.RESEND_API_KEY);
-const FROM     = process.env.EMAIL_FROM ?? 'Milad at 3MD Ventures <milad@3mdventures.com>';
-const INTERNAL = 'milad@3mdventures.com';
-const CALENDLY = process.env.NEXT_PUBLIC_CALENDLY_URL ?? 'https://calendly.com/milad-3mdventures/30min';
+const GMAIL_USER = process.env.GMAIL_USER ?? 'milad@3mdventures.com';
+const INTERNAL   = 'milad@3mdventures.com';
+const CALENDLY   = process.env.NEXT_PUBLIC_CALENDLY_URL ?? 'https://calendly.com/milad-3mdventures/30min';
+
+function getTransport() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+}
 
 function scoreColor(score: number) {
   if (score >= 80) return '#10b981';
@@ -78,14 +87,13 @@ export async function sendThankYou(
 </body>
 </html>`;
 
-  const { error } = await resend.emails.send({
-    from: FROM,
+  await getTransport().sendMail({
+    from: `Milad at 3MD Ventures <${GMAIL_USER}>`,
     to: email,
     subject: `Your RevOps Score: ${report.overall_score}/100 — ${report.overall_label}`,
     html,
   });
 
-  if (error) throw new Error(`Resend user email error: ${error.message}`);
   console.log('[email] thank-you sent to', email);
 }
 
@@ -236,13 +244,12 @@ export async function sendInternalSummary(
 </body>
 </html>`;
 
-  const { error } = await resend.emails.send({
-    from: FROM,
+  await getTransport().sendMail({
+    from: `Milad at 3MD Ventures <${GMAIL_USER}>`,
     to: INTERNAL,
     subject: `[New Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label} · ${answers.crm} · ${answers.company_size}`,
     html,
   });
 
-  if (error) throw new Error(`Resend internal email error: ${error.message}`);
   console.log('[email] internal summary sent for', email);
 }
