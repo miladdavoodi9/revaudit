@@ -7,30 +7,32 @@ const MOCK_REPORT = {
   overall_score: 58,
   overall_label: 'Needs Work',
   summary_headline: 'Your pipeline has structure, but gaps in attribution and data hygiene are costing you visibility — and revenue.',
+  overall_arr_impact_amount: '$480K–$720K',
+  overall_arr_impact: 'Gaps in attribution, stale pipeline data, and untracked churn are collectively putting an estimated $480K–$720K of ARR at risk annually.',
   categories: {
     pipeline_stage_design: {
       score: 72, label: 'Good',
-      findings: ['Stages follow buyer actions but renewal pipeline is mixed with new business.', 'Loss reasons are logged inconsistently, limiting post-mortem analysis.'],
+      findings: ['Stages follow buyer actions but renewal pipeline is mixed with new business.', 'Loss reasons are logged inconsistently, limiting post-mortem analysis.', 'Stage naming is partially buyer-centric but lacks enforcement.'],
       arr_impact: 'Estimated 8–12% of ARR at risk annually from misclassified pipeline stages.',
     },
     lead_source_attribution: {
       score: 38, label: 'High Risk',
-      findings: ['Lead source is captured manually — compliance is below 60%.', 'No saved report ties source to closed-won revenue.'],
+      findings: ['Lead source is captured manually — compliance is below 60%.', 'No saved report ties source to closed-won revenue.', 'UTM parameters are not mapped to required CRM fields.'],
       arr_impact: 'Without clean attribution, 20–30% of marketing spend is unaccountable.',
     },
     data_completeness: {
       score: 55, label: 'Needs Work',
-      findings: ['Key fields lack validation rules — reps can save with blank close dates.', 'Stale close dates inflate pipeline by an estimated 25%.'],
+      findings: ['Key fields lack validation rules — reps can save with blank close dates.', 'Stale close dates inflate pipeline by an estimated 25%.', 'Deal value is optional, creating forecast blind spots.'],
       arr_impact: 'Inflated pipeline leads to forecast errors averaging $400K–$800K per quarter.',
     },
     reporting_architecture: {
       score: 60, label: 'Needs Work',
-      findings: ['QoQ pipeline reports require manual rebuilds.', 'Weekly reviews rely on exported spreadsheets, not live CRM data.'],
+      findings: ['QoQ pipeline reports require manual rebuilds.', 'Weekly reviews rely on exported spreadsheets, not live CRM data.', 'No forecast category field is configured.'],
       arr_impact: 'Leadership decisions lag by 1–2 weeks — costing deals in the 11th hour.',
     },
     revenue_leakage: {
       score: 65, label: 'Good',
-      findings: ['Renewal pipeline exists but is mixed with new business.', 'Discounts are not logged at the deal level.'],
+      findings: ['Renewal pipeline exists but is mixed with new business.', 'Discounts are not logged at the deal level.', 'Churn reasons are captured verbally, not in CRM.'],
       arr_impact: 'Estimated 5–10% NRR leakage from untracked churn and discount patterns.',
     },
   },
@@ -48,6 +50,18 @@ async function shot(page, name) {
   console.log(`✓ ${name}.png`);
 }
 
+// Helper: click the "Start quiz" button on the entry screen
+async function clickQuiz(page) {
+  await page.waitForSelector('button');
+  const buttons = await page.$$('button');
+  for (const btn of buttons) {
+    const txt = await page.evaluate(el => el.textContent?.trim(), btn);
+    if (txt?.includes('Start quiz') || txt?.includes('Answer 10')) { await btn.click(); return; }
+  }
+  // fallback — click first button
+  await buttons[0].click();
+}
+
 // ── 1. Landing ────────────────────────────────────────────────────────────────
 {
   const page = await browser.newPage();
@@ -58,24 +72,37 @@ async function shot(page, name) {
   await page.close();
 }
 
-// ── 2. Q1 (audit form) ────────────────────────────────────────────────────────
+// ── 2. Entry screen ───────────────────────────────────────────────────────────
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
   await page.goto(`${BASE}/audit`, { waitUntil: 'networkidle2' });
+  await page.waitForSelector('h1');
+  await shot(page, 'entry');
+  await page.close();
+}
+
+// ── 3. Q1 (audit form) ───────────────────────────────────────────────────────
+{
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.goto(`${BASE}/audit`, { waitUntil: 'networkidle2' });
+  await page.waitForSelector('h1');
+  await clickQuiz(page);
   await page.waitForSelector('h2');
   await shot(page, 'audit');
   await page.close();
 }
 
-// ── 3. Q10 ────────────────────────────────────────────────────────────────────
+// ── 4. Q10 ────────────────────────────────────────────────────────────────────
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
   await page.goto(`${BASE}/audit`, { waitUntil: 'networkidle2' });
+  await page.waitForSelector('h1');
+  await clickQuiz(page);
   await page.waitForSelector('h2');
 
-  // Click through Q1–Q9 (pick first button each time, wait for re-render)
   for (let i = 0; i < 9; i++) {
     await page.waitForSelector('button');
     const buttons = await page.$$('button');
@@ -88,14 +115,15 @@ async function shot(page, name) {
   await page.close();
 }
 
-// ── 4. Stack / ARR step (metadata) ────────────────────────────────────────────
+// ── 5. Stack / ARR step ───────────────────────────────────────────────────────
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
   await page.goto(`${BASE}/audit`, { waitUntil: 'networkidle2' });
+  await page.waitForSelector('h1');
+  await clickQuiz(page);
   await page.waitForSelector('h2');
 
-  // Click through all 10 questions
   for (let i = 0; i < 10; i++) {
     await page.waitForSelector('button');
     const buttons = await page.$$('button');
@@ -103,37 +131,34 @@ async function shot(page, name) {
     await new Promise(r => setTimeout(r, 450));
   }
 
-  // Now on metadata step — click HubSpot and 51-200
   await page.waitForSelector('form');
-  const crmButtons = await page.$$('button[type="button"]');
-  for (const btn of crmButtons) {
+  const crmBtns = await page.$$('button[type="button"]');
+  for (const btn of crmBtns) {
     const txt = await page.evaluate(el => el.textContent?.trim(), btn);
     if (txt === 'HubSpot') { await btn.click(); break; }
   }
   await new Promise(r => setTimeout(r, 200));
-  const allButtons = await page.$$('button[type="button"]');
-  for (const btn of allButtons) {
+  const sizeBtns = await page.$$('button[type="button"]');
+  for (const btn of sizeBtns) {
     const txt = await page.evaluate(el => el.textContent?.trim(), btn);
     if (txt === '51–200') { await btn.click(); break; }
   }
   await new Promise(r => setTimeout(r, 200));
-  const arrButtons = await page.$$('button[type="button"]');
-  for (const btn of arrButtons) {
+  const arrBtns = await page.$$('button[type="button"]');
+  for (const btn of arrBtns) {
     const txt = await page.evaluate(el => el.textContent?.trim(), btn);
     if (txt === '$1M–$5M') { await btn.click(); break; }
   }
   await new Promise(r => setTimeout(r, 200));
-
   await shot(page, 'stack');
   await page.close();
 }
 
-// ── 5. Report (mock API) ──────────────────────────────────────────────────────
+// ── 6. Report (mock API) ──────────────────────────────────────────────────────
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
 
-  // Intercept /api/audit and return mock report
   await page.setRequestInterception(true);
   page.on('request', req => {
     if (req.url().includes('/api/audit')) {
@@ -148,9 +173,10 @@ async function shot(page, name) {
   });
 
   await page.goto(`${BASE}/audit`, { waitUntil: 'networkidle2' });
+  await page.waitForSelector('h1');
+  await clickQuiz(page);
   await page.waitForSelector('h2');
 
-  // Click through all 10 questions
   for (let i = 0; i < 10; i++) {
     await page.waitForSelector('button');
     const buttons = await page.$$('button');
@@ -158,7 +184,6 @@ async function shot(page, name) {
     await new Promise(r => setTimeout(r, 450));
   }
 
-  // Fill metadata
   await page.waitForSelector('form');
   const crmBtns = await page.$$('button[type="button"]');
   for (const btn of crmBtns) {
@@ -173,18 +198,14 @@ async function shot(page, name) {
   }
   await new Promise(r => setTimeout(r, 150));
 
-  // Submit
   const submitBtn = await page.$('button[type="submit"]');
   await submitBtn.click();
 
-  // Email capture screen
   await page.waitForSelector('input[type="email"]', { timeout: 5000 });
   await page.type('input[type="email"]', 'demo@example.com');
   const emailSubmit = await page.$('button[type="submit"]');
   await emailSubmit.click();
 
-  // Wait for report — poll for the score ring or report title
-  await page.waitForSelector('.animate-spin', { timeout: 3000 }).catch(() => {});
   await page.waitForFunction(
     () => document.body.innerText.includes('RevOps Audit Report'),
     { timeout: 10000 }

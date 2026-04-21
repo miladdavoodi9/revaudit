@@ -12,6 +12,8 @@ Built by [3MD Ventures](https://www.3mdventures.com). A lead generation and qual
 
 ![Landing Page](public/screenshots/landing.png)
 
+![Audit Entry — Choose Your Path](public/screenshots/entry.png)
+
 ![Audit Form — Question 1](public/screenshots/audit.png)
 
 ![Audit Form — Question 10](public/screenshots/q10.png)
@@ -196,6 +198,163 @@ types/
 scripts/
   get-refresh-token.mjs # One-time OAuth2 token generator for Google Sheets
 ```
+
+---
+
+---
+
+## Business Requirements Document (BRD)
+
+### Problem Statement
+B2B sales and revenue leaders often don't know the true health of their revenue operations until a missed quarter forces a painful post-mortem. Auditing a CRM setup manually takes days, requires RevOps expertise, and produces generic findings. There is no fast, scalable way for 3MD Ventures to demonstrate the value of RevOps consulting before a prospect commits to an engagement.
+
+### Business Objectives
+1. Generate qualified inbound leads for 3MD Ventures RevOps consulting services
+2. Demonstrate 3MD Ventures' expertise before any sales conversation
+3. Create a shareable, viral-friendly tool for social distribution
+4. Automate lead capture, scoring, and follow-up without manual intervention
+
+### Target Users
+- **Primary:** VP of Sales, CRO, RevOps Managers at B2B SaaS companies (11–500 employees, $500K–$50M ARR)
+- **Secondary:** Founders and Sales Directors who own the CRM without a dedicated RevOps function
+
+### User Goals
+- Understand where their revenue operations are broken
+- Quantify the dollar cost of those gaps
+- Get a concrete prioritized fix list
+- Book a call with 3MD Ventures if the findings resonate
+
+### Business Goals
+- Capture email + company profile of every respondent
+- Surface high-intent leads (low scores = high urgency = easier close)
+- Send Milad a real-time internal alert with full lead intel on every submission
+- Log all leads to Google Sheets for CRM import and follow-up tracking
+
+### Success Metrics
+- Audit completion rate > 60%
+- Email capture rate > 80% of completions
+- Calendly booking rate > 15% of email captures
+- Lead-to-opportunity conversion from audit > 20%
+
+### Audit Path Options
+1. **10-Question Diagnostic** — self-paced, auto-advance, no CRM access needed
+2. **Schema Upload** — user uploads a CSV, JSON, or XML CRM field export; Claude infers scores from field structure
+
+### Report Gating Strategy
+- Overall score, ARR at Risk callout, and category scorecard are fully visible to all users
+- Detailed findings for categories 1 and 2 are visible
+- Categories 3–5 and all Top 3 Fixes are blurred — unlocked via a Calendly booking CTA
+- Goal: give enough value to build credibility; withhold enough to drive the call
+
+### Out of Scope (Current Version)
+- Live CRM integrations (Salesforce, HubSpot, Monday.com) — planned post-public-deploy
+- User accounts or persistent report history
+- Payment or subscription gating
+
+---
+
+## Technical Requirements Document (TRD)
+
+### Architecture Overview
+Single-tenant Next.js 16 application (App Router, TypeScript) with serverless API routes. No database. All state is ephemeral per session.
+
+### Audit Flow — State Machine
+```
+entry → form | upload → capture (email gate) → loading → report | error
+```
+
+| State | Component | Description |
+|---|---|---|
+| `entry` | `AuditEntry` | User chooses quiz or file upload |
+| `form` | `AuditForm` | 10-question diagnostic, auto-advance on selection |
+| `upload` | `SchemaUpload` | File drop zone + metadata; accepts CSV / JSON / XML ≤ 500 KB |
+| `capture` | `EmailCapture` | Email gate before report is shown |
+| `loading` | inline | Spinner while Claude generates |
+| `report` | `AuditReport` | Scored report with blur gating |
+| `error` | inline | Error state with restart |
+
+### Scoring System (Quiz Path)
+Scores are computed in `lib/claude.ts` using a calibrated per-question weight table — Claude does not compute scores. Claude receives pre-computed scores and generates narrative only.
+
+| Category | Questions | Score Range |
+|---|---|---|
+| Pipeline Stage Design | Q1, Q2 | 0–100 |
+| Lead Source Attribution | Q3, Q4 | 0–100 |
+| Data Completeness | Q5, Q6 | 0–100 |
+| Reporting Architecture | Q7, Q8 | 0–100 |
+| Revenue Leakage | Q9, Q10 | 0–100 |
+
+Overall score = average of all 5 categories.
+
+### Scoring System (Schema Upload Path)
+Claude receives raw file content (field names, types, picklists, required rules) and infers scores for all 5 categories based on what is and is not present in the schema. Output shape is identical to the quiz path.
+
+### AI — Claude Integration
+- Model: `claude-sonnet-4-6`
+- Max tokens: 8192
+- Two functions: `generateAudit(answers)` and `generateAuditFromSchema(text, context)`
+- Both return a typed `AuditReport` object parsed from Claude's JSON response
+- Prompt enforces JSON-only output; response is parsed with index-based extraction to handle any leading/trailing whitespace
+
+### Report Output Shape
+```typescript
+AuditReport {
+  overall_score: number           // 0–100
+  overall_label: RiskLabel        // Critical | High Risk | Needs Work | Good | Strong
+  summary_headline: string        // One sentence
+  overall_arr_impact_amount: string  // Short dollar figure e.g. "$400K–$800K"
+  overall_arr_impact: string      // One sentence explaining the risk
+  categories: {
+    [key: CategoryKey]: {
+      score: number
+      label: RiskLabel
+      findings: string[]          // 3 items
+      arr_impact: string          // One sentence with $ or %
+    }
+  }
+  top_3_fixes: Fix[]              // rank, title, description, effort, impact
+}
+```
+
+### Side Effects on Submission
+All side effects are non-blocking (`.catch()` logged, never thrown to the client):
+
+| Effect | Function | Failure Behavior |
+|---|---|---|
+| Log lead to Google Sheets | `saveLead()` | Logged, silent |
+| Send user thank-you email | `sendThankYou()` | Logged, silent |
+| Send internal lead intel email | `sendInternalSummary()` | Logged, silent |
+
+### File Upload Security
+- File is read client-side via `File.text()` — never written to disk or stored
+- Transmitted as plain text in the POST body over HTTPS
+- Max file size enforced client-side at 500 KB
+- Accepted extensions: `.csv`, `.json`, `.xml`
+- Claude receives field metadata only — the prompt explicitly instructs Claude to ignore any record-level data that may be present
+
+### Email — Two Templates
+1. **User thank-you** (`sendThankYou`): score, ARR at Risk callout, #1 fix, Calendly CTA, Milad's contact
+2. **Internal lead intel** (`sendInternalSummary`): full lead profile, all 5 category scores + findings + ARR impact, top 3 fixes
+
+### Google Sheets Lead Log
+- Sheet: `GOOGLE_SHEET_ID` env var
+- Tab: `RevAudit Leads` (auto-created)
+- Columns: Timestamp · Email · Name · Overall Score · Risk Label · Summary · CRM · Company Size · Industry · ARR · Answers JSON · Report JSON
+
+### Environment Variables
+| Variable | Required | Purpose |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Yes | Claude API |
+| `GOOGLE_CLIENT_ID` | Yes | Google OAuth2 |
+| `GOOGLE_CLIENT_SECRET` | Yes | Google OAuth2 |
+| `GOOGLE_REFRESH_TOKEN` | Yes | Google OAuth2 (no expiry) |
+| `GOOGLE_SHEET_ID` | Yes | Lead logging sheet |
+| `GMAIL_USER` | Yes | Nodemailer sender |
+| `GMAIL_APP_PASSWORD` | Yes | Gmail SMTP auth |
+| `NEXT_PUBLIC_CALENDLY_URL` | No | Calendly booking link |
+
+### Planned: CRM Integrations (Post-Deploy)
+OAuth 2.0 integrations with Salesforce, HubSpot, and Monday.com to replace manual schema export. Token held in memory only for the duration of the request. Read-only schema/metadata scopes exclusively — no record access.
 
 ---
 
