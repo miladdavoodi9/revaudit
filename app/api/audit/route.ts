@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { generateAudit, generateAuditFromSchema } from '@/lib/claude';
 import { saveLead } from '@/lib/drive';
 import { sendThankYou, sendInternalSummary } from '@/lib/email';
@@ -98,15 +98,17 @@ export async function POST(req: NextRequest) {
       ? await generateAuditFromSchema(schema, schemaContext as { crm: string; company_size: string; industry?: string; arr?: string })
       : await generateAudit(answers as AuditAnswers);
 
-    // Non-blocking side-effects
-    saveLead({ email, name: safeName, answers: answers as AuditAnswers | undefined, report }).catch((err: unknown) => {
-      console.error('[drive] save failed:', err instanceof Error ? err.message : err);
-    });
-    sendThankYou(email, safeName, report).catch((err: unknown) => {
-      console.error('[email] thank-you failed:', err instanceof Error ? err.message : err);
-    });
-    sendInternalSummary(email, safeName, answers as AuditAnswers | undefined, report).catch((err: unknown) => {
-      console.error('[email] internal summary failed:', err instanceof Error ? err.message : err);
+    // Fire side-effects after response is sent — after() keeps the function
+    // alive on Vercel until these complete instead of cutting them off early.
+    after(async () => {
+      await Promise.allSettled([
+        saveLead({ email, name: safeName, answers: answers as AuditAnswers | undefined, report })
+          .catch((err: unknown) => console.error('[drive] save failed:', err instanceof Error ? err.message : err)),
+        sendThankYou(email, safeName, report)
+          .catch((err: unknown) => console.error('[email] thank-you failed:', err instanceof Error ? err.message : err)),
+        sendInternalSummary(email, safeName, answers as AuditAnswers | undefined, report)
+          .catch((err: unknown) => console.error('[email] internal summary failed:', err instanceof Error ? err.message : err)),
+      ]);
     });
 
     return NextResponse.json({ report });
