@@ -69,26 +69,23 @@ function LabelBadge({ label }: { label: RiskLabel }) {
   );
 }
 
-function BlurOverlay({ onCTA, calendlyUrl }: { onCTA: () => void; calendlyUrl: string }) {
+function LockedBody({ calendlyUrl }: { calendlyUrl: string }) {
   return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-gray-950/60 backdrop-blur-[2px]">
-      <div className="flex flex-col items-center gap-3 px-6 text-center">
-        <div className="w-9 h-9 bg-brand-900 rounded-xl flex items-center justify-center">
-          <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-        </div>
-        <p className="text-white text-sm font-semibold">Full detail unlocked on your call</p>
-        <a
-          href={calendlyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={onCTA}
-          className="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold rounded-xl transition-colors"
-        >
-          Book a Free 30-Min Review →
-        </a>
+    <div className="px-6 py-8 flex flex-col items-center gap-3 text-center border-t border-gray-800">
+      <div className="w-9 h-9 bg-brand-900 rounded-xl flex items-center justify-center">
+        <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
       </div>
+      <p className="text-gray-400 text-sm">Full findings unlocked on your call</p>
+      <a
+        href={calendlyUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-5 py-2.5 bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold rounded-xl transition-colors"
+      >
+        Book a Free 30-Min Review →
+      </a>
     </div>
   );
 }
@@ -166,24 +163,25 @@ export default function AuditReport({ report, email }: AuditReportProps) {
       {categories.map(([key, cat], index) => {
         const locked = index >= UNLOCKED;
         return (
-          <div key={key} className="relative">
-            {locked && (
-              <BlurOverlay onCTA={() => {}} calendlyUrl={calendlyUrl} />
-            )}
-            <div className={locked ? 'blur-sm pointer-events-none select-none' : ''}>
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
-                <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold tracking-widest text-brand-400 uppercase mb-1">Category</p>
-                    <h3 className="text-lg font-semibold text-white">{CATEGORY_META[key].display}</h3>
-                    <p className="text-gray-500 text-xs mt-1">{CATEGORY_META[key].description}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0 ml-4">
-                    <div className={`text-3xl font-bold ${getScoreColor(cat.score)}`}>{cat.score}</div>
-                    <LabelBadge label={cat.label} />
-                  </div>
+          <div key={key}>
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+              {/* Header always visible */}
+              <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-brand-400 uppercase mb-1">Category</p>
+                  <h3 className="text-lg font-semibold text-white">{CATEGORY_META[key].display}</h3>
+                  <p className="text-gray-500 text-xs mt-1">{CATEGORY_META[key].description}</p>
                 </div>
+                <div className="text-right flex-shrink-0 ml-4">
+                  <div className={`text-3xl font-bold ${getScoreColor(cat.score)}`}>{cat.score}</div>
+                  <LabelBadge label={cat.label} />
+                </div>
+              </div>
 
+              {/* Body: locked or visible */}
+              {locked ? (
+                <LockedBody calendlyUrl={calendlyUrl} />
+              ) : (
                 <div className="px-6 py-5 space-y-4">
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Findings</p>
@@ -198,43 +196,38 @@ export default function AuditReport({ report, email }: AuditReportProps) {
                       ))}
                     </ul>
                   </div>
-
                   <div className="bg-gray-950 border border-gray-800 rounded-xl px-4 py-3">
                     <p className="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-1">ARR Impact</p>
                     <p className="text-sm text-gray-300">{cat.arr_impact}</p>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         );
       })}
 
-      {/* Top 3 Fixes — blurred */}
-      <div className="relative">
-        <BlurOverlay onCTA={() => {}} calendlyUrl={calendlyUrl} />
-        <div className="blur-sm pointer-events-none select-none">
-          <h2 className="text-lg font-semibold text-white mb-4">Top 3 Fixes</h2>
-          <div className="space-y-4">
-            {report.top_3_fixes.map((fix) => (
-              <div key={fix.rank} className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-900 rounded-xl flex items-center justify-center text-brand-300 font-bold text-sm">
-                    {fix.rank}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-base font-semibold text-white mb-2">{fix.title}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed mb-4">{fix.description}</p>
-                    <div className="flex gap-2 flex-wrap">
-                      <EffortBadge value={fix.effort} type="effort" />
-                      <EffortBadge value={fix.impact} type="impact" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Top 3 Fixes */}
+      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-white">Top 3 Fixes</h2>
+          <span className="text-xs text-gray-500">Full detail on your call</span>
         </div>
+        <div className="divide-y divide-gray-800">
+          {report.top_3_fixes.map((fix) => (
+            <div key={fix.rank} className="px-6 py-4 flex items-center gap-4">
+              <div className="flex-shrink-0 w-7 h-7 bg-brand-900 rounded-lg flex items-center justify-center text-brand-300 font-bold text-xs">
+                {fix.rank}
+              </div>
+              <p className="text-sm font-medium text-gray-300 flex-1">{fix.title}</p>
+              <div className="flex gap-2 flex-shrink-0">
+                <EffortBadge value={fix.effort} type="effort" />
+                <EffortBadge value={fix.impact} type="impact" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <LockedBody calendlyUrl={calendlyUrl} />
       </div>
 
       {/* Footer */}

@@ -47,7 +47,7 @@ export default function AuditEntry({ onQuiz, onUpload }: AuditEntryProps) {
           </div>
           <h2 className="text-base font-semibold text-white mb-1">Upload Your CRM Export</h2>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Drop a CSV, JSON, or XML field export. Claude reads your schema — not your data.
+            Drop a CSV, JSON, or XML field export. We read your schema — not your data.
           </p>
           <div className="mt-4 text-brand-400 text-sm font-medium group-hover:text-brand-300 transition-colors">
             Upload file →
