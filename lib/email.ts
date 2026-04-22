@@ -77,8 +77,7 @@ export async function sendThankYou(
 
   <!-- Signature -->
   <tr><td style="background:#fff;border-radius:0 0 16px 16px;padding:24px 36px;">
-    <p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#111827;">Milad Davoodi</p>
-    <p style="margin:0 0 2px;font-size:13px;color:#9ca3af;">Founder, 3MD Ventures</p>
+    <p style="margin:0 0 2px;font-size:14px;font-weight:600;color:#111827;">3MD Ventures</p>
     <p style="margin:0;font-size:13px;color:#9ca3af;">
       <a href="mailto:milad@3mdventures.com" style="color:#0068B5;text-decoration:none;">milad@3mdventures.com</a>
       &nbsp;·&nbsp;512-240-2568&nbsp;·&nbsp;
@@ -93,7 +92,7 @@ export async function sendThankYou(
 </html>`;
 
   await getTransport().sendMail({
-    from: `Milad at 3MD Ventures <${GMAIL_USER}>`,
+    from: `3MD Ventures <${GMAIL_USER}>`,
     to: email,
     subject: `Your RevOps Score: ${report.overall_score}/100 — ${report.overall_label}`,
     html,
@@ -250,7 +249,7 @@ export async function sendInternalSummary(
 </html>`;
 
   await getTransport().sendMail({
-    from: `Milad at 3MD Ventures <${GMAIL_USER}>`,
+    from: `3MD Ventures <${GMAIL_USER}>`,
     to: INTERNAL,
     subject: `[New Lead] ${name || email} — ${report.overall_score}/100 ${report.overall_label}${answers?.crm ? ' · ' + answers.crm : ''}${answers?.company_size ? ' · ' + answers.company_size : ''}`,
     html,

@@ -15,7 +15,7 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!validate(email)) {
       setError('Please enter a valid work email.');
@@ -79,7 +79,7 @@ export default function EmailCapture({ onCapture }: EmailCaptureProps) {
         </form>
 
         <p className="text-center text-gray-600 text-xs mt-4">
-          No spam. One follow-up from Milad at 3MD Ventures.
+          No spam. One follow-up from 3MD Ventures.
         </p>
       </div>
     </div>
